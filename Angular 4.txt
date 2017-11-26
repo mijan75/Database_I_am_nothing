@@ -1,0 +1,571 @@
+Typescript Fundamentals:
+
+	Advantage:
+		Strong Typing
+		Compile-time errors
+		
+	Variale Declaration:
+		var number; // number is available in the nearest function.
+		let number; // number is available in the nearest block.
+		
+	Type of variable:
+	
+		let a:number;
+		let b:boolean;
+		let c:string;
+		let d:any;
+		let e:number[] = [1,2,3,4,5];
+		let f:any[] = [1,true,'a, false'];
+
+		enum Color{Red=1, Green=2, Blue=3};
+		let backgroundColor = Color.Blue;	
+		
+	//Type Assertion
+	
+		let message;
+		message = 'abc';
+		let endWith = (<string>message).endsWith('c');
+		console.log(endWith);
+		
+	//Arrow Function
+		let log = function(message){
+		    console.log(message);
+		}
+
+		let doLog = (message) => console.log(message);
+		let anotherLog = message => console.log(message);
+		let notherLog = () => console.log();
+		let notherLog1 = console.log();
+	
+	//Interfaces
+        interface Point{
+            x:number,
+            y:number
+        }
+    // Class, Constructor, Property, Module
+		export class Point{
+		
+		constructor(private _likeCount?:number, private _isClicked?:boolean){
+
+		}
+
+		onClick () {
+		    this._likeCount += (this._isClicked) ? -1:+1;
+		    this._isClicked = !this._isClicked;
+		}
+
+		get likeCount(){
+		    return this._likeCount;
+		}
+
+		get isClicked(){
+		    return this._isClicked;
+		}
+	}
+	
+	//Import Class
+	
+		import {Point} from './point';
+		
+	//Print out something 
+		console.log(`Number of Like: ${point.isClicked} Is Select: ${point.likeCount}`);
+	
+	// Run command 
+	 tsc *.ts --target ES5 && node Main.js
+
+Angular Fundamental:
+	//Component:
+	
+		import { Injectable } from '@angular/core';
+		import { Component } from '@angular/core';
+		import { CoursesService } from './courses.service';
+
+			selector:'courses', // Selector is work to select something
+			template:`
+				<h2>{{ "Title: " + title }}</h2>
+				<ul>
+				    <li *ngFor="let course of courses">
+				        {{course}} // This is the way to print a dyanmic value
+				    </li>
+				</ul>
+			`
+		})
+		
+		// After create a component you have to set that in the module component.
+		// ng g c nameOfTheComponent (This command will create a component for you and it will also the rest)
+		
+		//Directives:
+			//Here *ngFor is a directive. If we want to write any logic or code we have to use this ``.
+			@Component({
+			selector:'courses', // Selector is work to select something
+			template:`
+				<h2>{{ "Title: " + title }}</h2>
+				<ul>
+				    <li *ngFor="let course of courses"> // Directives
+				        {{course}} // Interpolation
+				    </li>
+				</ul>
+			`
+		})
+		
+		//Service:
+			After create the service we have to add that in the module providers
+			// ng g s email (This command will create a service for you and it will do the rest)
+			@Injectable()
+			export class CoursesComponent{
+				title = "This is dyanamic post";
+				courses;
+
+				constructor(service:CoursesService){
+					this.courses = service.getCourses();
+				}
+			}
+			//This is an another class
+			export class CoursesService{
+			getCourses(){
+				return ["course1","course2", "course3"];
+				} 
+			}
+			
+Event Handling data binding:
+		//Property Binding:f
+		
+	    	<img [src] = "imageUrl"/>  
+	    	
+    	//Attribute Binding
+    	
+    		<td [attr.colspan]="colSpan" >Mijan</td>
+
+    	//Adding Bootstrap  + Class Binding
+			
+			<button class="btn btn-primary" [class.active] = "isActive">Save</button> 
+		
+		//Style Binding
+    		
+			<button [style.backgoundColor]="isActive ? 'blue': 'white'">Click</button>
+		
+		//Event Binding
+		
+			<button (click)="onSave($event)">Save </button>
+			onSave($event){
+				$event.stopPropagation();
+				console.log("Button was clicked", $event);
+			}
+			
+	    //Event Filtering
+    			<input (keyup.enter)="onKeyUp()"/>
+				onKeyUp(){
+					console.log("Enter is clicked");
+				}
+		
+
+		//Template Binding
+				<input (keyup.enter) = "onKyeUp($event)"
+
+				  onKeyUp($event){
+				   console.log($event.target.value);
+				}
+				<input #email (keyup.enter)="onKeyUp(email.value)"/>
+				onKeyUp(email){
+					console.log(email);
+				}
+				
+	    //Two way binding
+				<input [(ngModel)] = "email" (keyup.enter)="onKeyUp()"/>
+				onKeyUp(){
+					console.log(this.email);
+				}
+				For two way binding you have to add FormModule in the imports of the app module
+				import { FormsModule } from '@angular/forms';
+				
+	    //Pipe
+				<input [(ngModel)] = "email" (keyup.enter)="onKeyUp()"/><br/>
+				{{course.title | uppercase}} <br/>
+				{{course.rating | number:'1.2-2'}} <br/>
+				{{course.students | number}} <br/>
+				{{course.price | currency:'AUD':true:'3.2-2'}} <br/>
+				{{course.releaseDate | date:'shortDate'}} <br/>
+				   course = {
+					title:"The complete angular course",
+					rating: 4.9745,
+					students:30123,
+					price:190.95,
+					releaseDate: new Date(2016,3,1)
+				}
+				
+		
+    	//Custom Pipe
+				{{message | summary:10}}
+				message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+				We have to write our custome pipe class with interface
+		
+				import { Pipe, PipeTransform } from '@angular/core';
+		
+				@Pipe({
+					name:'summary'
+				})
+				export class SummaryPipe implements PipeTransform{
+					transform(value:string, limit?:number){
+						if(!value )
+						return null;
+						let actualLimit = (limit) ? limit : 50;
+						return value.substring(0,actualLimit);
+						
+					}
+				}
+
+				Also need to register this pipe in the component
+				
+    
+
+	// Building re-usabe Component
+
+		// Input Properties
+				import { Component, OnInit, Input } from '@angular/core';
+
+				@Component({
+				  selector: 'app-favorite',
+				  templateUrl: './favorite.component.html',
+				  styleUrls: ['./favorite.component.css']
+				})
+				export class FavoriteComponent implements OnInit {
+				  @Input() isFavorite:boolean;
+				  
+				  constructor() { 
+					this.isFavorite = true;
+				  }
+
+				  ngOnInit() {
+				  }
+
+				  onClick(){
+					this.isFavorite = !this.isFavorite;
+				  }
+
+				}
+				<app-favorite [isFavorite] = "post.isFavorite"></app-favorite>
+				// Input property let's you make re-usable component
+				// A component is using by app.component.html which is created by another component
+
+		//Alias input property
+				import { Component, OnInit, Input } from '@angular/core';
+
+				@Component({
+				  selector: 'app-favorite',
+				  templateUrl: './favorite.component.html',
+				  styleUrls: ['./favorite.component.css']
+				})
+				export class FavoriteComponent implements OnInit {
+				  @Input('isSelected') isFavorite:boolean;
+				  
+				  constructor() { 
+					this.isFavorite = true;
+				  }
+
+				  ngOnInit() {
+				  }
+
+				  onClick(){
+					this.isFavorite = !this.isFavorite;
+				  }
+
+				}
+				<app-favorite [isSelected] = "post.isFavorite"></app-favorite>
+				//If you want to change the selector for any of casuse then you can use Alias for removing any type of ambiguity.
+		
+		//Output Properties
+				import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+
+
+				@Component({
+				  selector: 'app-favorite',
+				  templateUrl: './favorite.component.html',
+				  styleUrls: ['./favorite.component.css']
+				})
+				export class FavoriteComponent implements OnInit {
+				  @Input() isFavorite:boolean;
+				  @Output() change = new EventEmitter();
+				  
+				  constructor() { 
+					this.isFavorite = true;
+				  }
+
+				  ngOnInit() {
+				  }
+
+				  onClick(){
+					this.isFavorite = !this.isFavorite;
+					this.change.emit();
+				  }
+
+				}
+							
+				<app-favorite [isFavorite] = "post.isFavorite"(change)="onFavoriteChange()"></app-favorite>
+				 onFavoriteChange(){
+    					console.log("Favorite Changed");
+  				}
+  				
+  				// If you want to create a event by using output Properties
+  		
+  		//Passing Event Data
+  				<app-favorite [isFavorite] = "post.isFavorite"(change)="onFavoriteChange($event)"></app-favorite>
+  				
+				
+				import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+
+				@Component({
+				  selector: 'app-favorite',
+				  templateUrl: './favorite.component.html',
+				  styleUrls: ['./favorite.component.css']
+				})
+				export class FavoriteComponent implements OnInit {
+				  @Input() isFavorite:boolean;
+				  @Output() change = new EventEmitter();
+				  
+				  constructor() { 
+					this.isFavorite = true;
+				  }
+
+				  ngOnInit() {
+				  }
+
+				  onClick(){
+					this.isFavorite = !this.isFavorite;
+					this.change.emit({newValue: this.isFavorite});
+				  }
+
+				  
+				}
+
+				export interface FavoriteComponentChanged{
+				  newValue: boolean;
+				}
+				
+				import { Component } from '@angular/core';
+				import { FavoriteComponentChanged } from './favorite/favorite.component';
+
+				@Component({
+				  selector: 'app-root',
+				  templateUrl: './app.component.html',
+				  styleUrls: ['./app.component.css']
+				})
+				export class AppComponent {
+				  post = {
+					title: "Title",
+					isFavorite:true,
+				  }
+
+				  onFavoriteChange(eventArgs: FavoriteComponentChanged){ 
+					console.log("Favorite Changed " + eventArgs.newValue);
+				  }
+				}
+				
+				// It creates a way to take data from the event
+		
+		 // View Encapsulation
+		 		encapsulation: ViewEncapsulation.Emulated
+		 		// Add this line of code the component.ts of your class
+	
+		// ng-contian and ng container
+				<div class="panel panel-default">
+					  <div class="panel-heading">
+						<ng-content select=".heading"></ng-content>
+					  </div>
+					  <div class="panel-body">
+						<ng-content select=".body"></ng-content>
+					  </div>
+				</div>
+			
+				  <!-- <div class="heading">Heading</div> -->
+				  <ng-container class="heading">Heading</ng-container>
+				  <div class="body">
+					<h3>Body</h3>
+					<p>Something is happening here...</p>
+				  </div>
+				</app-favorite>
+		
+	//Directives
+		//*ngIf
+			<div *ngIf="courses.length > 0; then courseList else noCourses"></div>
+			<ng-template #courseList>List Of courses</ng-template>
+			<ng-template #noCourses>No course yet</ng-template>
+			
+		// Hidden Property
+			<div [hidden]="courses.length == 0">
+			  List of courses
+			</div>
+			<div [hidden]="courses.length > 0">
+			  No courses yet
+			</div>
+			// If you working with the big tree then use *ngIf otherwise use Hidden Property
+			
+		// *ngSwitchCase
+			<ul class="nav nav-pills">
+			  <li [class.active]="viewSomething == 'map'"><a (click)="viewSomething = 'map'">Map View</a></li>
+			  <li [class.active]="viewSomething == 'list'"><a (click)="viewSomething = 'list'">List View</a></li>
+			</ul>
+
+			<div [ngSwitch]="viewSomething">
+			  <div *ngSwitchCase="'map'">Map View Content</div>
+			  <div *ngSwitchCase="'list'">List View Content</div>
+			  <div *ngSwitchDefault>Otherwise</div>
+			</div>
+			
+			viewSomething = 'map'
+			
+		// *ngFor
+			<button (click)="onSave()">Add</button>
+			<ul>
+			  <li *ngFor="let student of students; even as isEven">
+				{{student.name}} 
+				<span *ngIf="isEven">(EVEN)</span>
+				<button (click)="onRemove(student)">Remove</button>
+			  </li>
+			</ul>
+			
+		  onSave(){
+	    	this.students.push({id:4, name:"Rifat"})
+		  }		    
+		  
+		  onRemove(student){
+			    let index = this.courses.indexOf(student);
+    			this.students.splice(index, 1);
+  			}
+  			
+  		// *ngFor Change Detection
+  			<button (click)="onSave()">Add</button>
+			<ul>
+			  <li *ngFor="let student of students; even as isEven">
+				{{student.name}} 
+				<span *ngIf="isEven">(EVEN)</span>
+				<button (click)="onRemove(student)">Remove</button>
+			  </li>
+			</ul>
+			
+		  onSave(){
+	    	this.students.push({id:4, name:"Rifat"})
+		  }		    
+		  
+		  onRemove(student){
+			    student.name = 'Updated';
+  			}
+  			
+		
+		// *ngFor Trackby	
+			<ul>
+			  <li *ngFor="let student of students; trackBy: trackCourses">
+				{{student.name}} 
+			  </li>
+			</ul>
+			
+			trackCourses(index, student){
+				return student ? student.id : undefined;
+		  	}
+		// ngClass
+			<span class="glyphicon"
+			[ngClass]="{
+			  'glyphicon-star': isSelected,
+			  'glyphicon-star-empty': !isSelected
+			}"
+			(click)="onClick()"
+			></span>
+			
+		// ngStyle
+			canSave = false
+			<button
+			  [ngStyle]="{
+				  'backgroundColor': canSave ? 'blue' : 'gray',
+				  'color': canSave ? 'white' : 'black',
+				  'fontWeight': canSave ? 'blue' : 'gray'
+			  }"
+			>Mijan</button>
+			
+		// Save Traversal Operator
+			<span>{{faculty.teacher?.name}}</span>
+			// You have a object name faculty and also a object teacher if techer is null then the program will crash so we use ? for save traversal
+		
+		// Custom Directives
+			ng g d input-format // It will create a new directives for you
+			import { Directive, HostListener, ElementRef,Input  } from '@angular/core';
+
+			@Directive({
+			  selector: '[appInputFormat]'
+			})
+			export class InputFormatDirective {
+			  @Input('format') format;
+			  constructor(private el:ElementRef) { 
+			  }
+			  
+			  @HostListener('focus') onFocus(){
+				console.log("on Focus");
+			  }
+
+			  @HostListener('blur') onBlur(){
+				let value:string = this.el.nativeElement.value;
+				if(this.format == 'lowercase')
+				  return this.el.nativeElement.value = value.toLowerCase();
+				else
+				  return this.el.nativeElement.value = value.toUpperCase();
+			  }
+			}
+			
+			<input type="text" appInputFormat [format]="'lowercase'">
+
+	// Template driven forms
+		// Building bootstrap, Types of form, ngModel, validation, style validation, ngForm, ngModelGroup, checkbox, radiobutton, disable button
+		
+						<div class="container">
+				  <form #f="ngForm" (ngSubmit)="submit(f)">
+					  <div ngModelGroup="contact" #contact="ngModelGroup">
+						  <!-- <div *ngIf="!contact.valid">...</div> -->
+						  <div class="from-group">
+								<label for="firstName">Your Name:</label>
+								<input pattern="banana" minlength="3" maxlength="10" required ngModel name="firsName" #firstName="ngModel" (click)="log(firstName)"id="firstName" type="text" class="from-control" placeholder="Enter your name">
+								<div class="alert alert-danger" *ngIf="firstName.touched && !firstName.valid">
+								  <div *ngIf="firstName.errors.required">
+								    First name is required
+								  </div>
+								  <div *ngIf="firstName.errors.minlength">
+								    First name length is less then {{firstName.errors.minlength.requiredLength}}
+								  </div>
+								  <div *ngIf="firstName.errors.pattern">
+								    Pattern doesn't change
+								  </div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="comment">Comment</label>
+								<textarea ngModel name="comment" id="comment" cols="30" rows="10" class="form-control" placeholder="Leave a comment"></textarea>
+							</div>
+
+							  <div class="checkbox">
+								<label for="">
+								  <input ngModel type="checkbox" ngMode name="isSubscribed"> Subscribe for the mailing list
+								</label>
+							  </div>
+							  <div class="radio" *ngFor="let method of contactMethods">
+								<label for="">
+								  <input ngModel name="contactMethod" type="radio" name="contactMethod" [value]="method.id">
+								  {{method.name}}
+								</label>
+							  </div>
+							  <div class="from-group">
+								  <label for="commentMethod">Contact Method</label>
+								  <select multiple ngModel name="contactMethods" id="contactMethods" class="from-control">
+								    <option *ngFor="let method of contactMethods" [value]="method.id">
+								      {{method.name}}
+								    </option>
+								  </select>
+								</div>
+							  
+							  <button class="btn btn-primary" [disabled]="!f.valid">
+								Submit
+							  </button>
+							  <p>{{f.value | json}}</p>
+						</div>
+				  </form>
+				</div>
+					// All things in the one code
+					// ngModelGroup is use to define a form as a object and ngModel is the component of that group
+			
+			
