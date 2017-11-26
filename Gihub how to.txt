@@ -1,0 +1,24 @@
+Github Configuration :
+ 
+git config  -- global user.name ''  ''
+git config  -- global user.email ''  '
+git config – list
+
+ssh-keygen -t rsa -C '' mail ''
+ssh add
+ssh -T git@github.com
+git remote add origin '' origin code ''
+git push origin master
+git remote remove origin
+
+Github basic keyword : 
+
+git init → Using for repository create
+git status → Using for viewing status
+git commit -m '' '' → Using for commit 
+git log → Using to view what I have done
+git add '' filename'' → Using for add file to commit
+git log  -- oneline → Using for viewing all log in one line
+git commit -a -m '' ''  → Using for commit all file in one time
+git staus -s → Using for viewing which one is changes in the recent time
+git diff -- cached → Using for viewing difference in staging
