@@ -727,6 +727,193 @@ Event Handling data binding:
 		  }
 
 		}
+		//Custom Validators
+		    static cannotConatainSpace(control:AbstractControl):ValidationErrors | null{
+				if((control.value as string).indexOf(' ') >=0){
+				    return { cannotConatainSpace: true }
+				}
+				return null;
+			}
+			
+		//Asynchronous Validators
+			static shouldBeUnique(control:AbstractControl):Promise <ValidationErrors | null>{
+		    return new Promise((resolve, reject) =>{
+		        setTimeout(() => {
+		            if(control.value === 'Rifat')
+		                resolve ({ shouldBeUnique:true });
+		            else
+		                resolve (null);
+		        },1000);    
+		    });
+		}
+			
+	//Consuming HttpRequest
+		
+		//posts.component.ts
+			import { AppError } from './../common/app-error';
+			import { Component, OnInit } from '@angular/core';
+			import { Http } from '@angular/http';
+			import { PostService } from '../services/post.service';
+			import { BadInput } from './../common/bad-input';
+			import { NotFoundError } from './../common/not-found-error';
+
+
+
+			@Component({
+			  selector: 'app-posts',
+			  templateUrl: './posts.component.html',
+			  styleUrls: ['./posts.component.css']
+			})
+			export class PostsComponent implements OnInit {
+			  posts: any = [];
+
+			  // Don't use Constructor for Getting data from the server use ngOnIt Mthod
+			  ngOnInit() {
+				this.service.getAll().subscribe(posts => this.posts = posts);
+			  }
+
+			  constructor(private service: PostService) {}
+
+			  //Creating Object
+			  createPost(input: HTMLInputElement) {
+				let post = { title: input.value };
+				this.posts.splice(0, 0, post);
+				input.value = '';
+
+				this.service.create(post).subscribe(newPost => {
+				  post['id'] = newPost.id;
+				},
+				  (error: AppError) => {
+					this.posts.splice(0,1);
+
+					if (error instanceof BadInput) {
+					  // this.form.setErrors(error.originalError);
+					}
+					else throw error;
+				  });
+			  }
+
+			  // Update Object
+			  updateSomething(post) {
+				this.service.update(post).subscribe(updatedPost => {
+				  console.log(updatedPost);
+				});
+				//this.http.put(this.url, JSON.stringify(post));
+			  }
+
+			  // Delete Object // We are using here optimistic approch that why at first we update the User Interface then try to submit that in the server
+			  deleteSomething(post) {
+				let index = this.posts.indexOf(post);
+				this.posts.splice(index, 1);
+
+				this.service.delete(post.id).subscribe(() => {
+				  null;
+				},
+				  (error: AppError) => {
+					this.posts.splice(index, 0, post);
+					if (error instanceof NotFoundError)
+					  alert('This post has already deleted');
+					else throw error;
+				  });
+			  }
+			}
+			
+		//posts.service.ts
+			import { Injectable } from '@angular/core';
+			import { Http } from '@angular/http';
+			import { DataService } from '../services/data.service';
+
+			@Injectable()
+			export class PostService extends DataService{
+			  constructor(http: Http) { 
+				super('https://jsonplaceholder.typicode.com/posts',http);
+			  };
+			}
+			
+		// data.service.ts
+				import { Injectable } from '@angular/core';
+				import { Http } from '@angular/http';
+				import { Observable } from 'rxjs/Observable';
+				import { AppError } from '../common/app-error';
+				import { NotFoundError } from '../common/not-found-error';
+				import { BadInput } from '../common/bad-input';
+				import 'rxjs/add/observable/throw';
+				import 'rxjs/add/operator/catch';
+				import 'rxjs/add/operator/map';
+
+				@Injectable()
+				export class DataService {
+					constructor(private url: string, private http: Http) { }
+					
+					// this.handleError method call our global error method
+					getAll() {
+						return this.http.get(this.url)
+							.map(response => response.json())
+							.catch(this.handleError);
+					}
+
+					create(resource) {
+						return this.http.post(this.url, JSON.stringify(resource))
+							.map(response => response.json())
+							.catch(this.handleError);
+					}
+
+					update(resource) {
+						return this.http.patch(this.url + '/' + resource.id, JSON.stringify({ isRead: true }))
+							.map(response => response.json())
+							.catch(this.handleError);
+					}
+
+					delete(id) {
+						return this.http.delete(this.url + '/' + id)
+							.map(response => response.json())
+							.catch(this.handleError);
+					}
+
+					private handleError(error: Response) {
+						if (error.status === 400)
+							return Observable.throw(new BadInput(error.json()));
+
+						if (error.status === 404)
+							return Observable.throw(new NotFoundError);
+						return Observable.throw(new AppError(error));
+					}
+				}
+			//app-error-handler
+				import { ErrorHandler } from '@angular/core';
+				//This is for global error handeling
+				export class AppErrorHandler implements ErrorHandler{
+					handleError(error){
+						alert('An Unexpected error');
+						console.log(error);
+					}
+				}
+			// app.error.ts
+				export class AppError {
+					constructor(public originalError?: any){}
+				}
+			// bad-input.ts
+				import { AppError } from './app-error';
+				export class BadInput extends AppError{}
+			//not-found-error.ts
+				import { AppError } from './app-error';
+				export class NotFoundError extends AppError{}
+			// If you want to use global error handling then in the app.module.ts you have to provide the name of the class something like this
+				{ provide: ErrorHandler, useClass: AppErrorHandler },
+			
+			//posts.componet.html
+				<input (keyup.enter)="createPost(title)" #title type="text" class="form-control">
+				<ul class="list-group">
+				  <li 
+				  *ngFor="let post of posts"
+				  class="list-group-item">
+				  <button (click)="updateSomething(post)" class="btn btn-default btn-sm" >Update</button>
+				  <button (click)="deleteSomething(post)" class="btn btn-default btn-sm" >Delete</button>
+				  {{ post.title}}
+				</li>
+				</ul>
+
+
 
 
 			
